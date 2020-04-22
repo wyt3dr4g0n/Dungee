@@ -38,6 +38,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.pbDmMap = new System.Windows.Forms.PictureBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.DMGroup.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -173,12 +174,27 @@
             this.textBox1.Text = resources.GetString("textBox1.Text");
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
+            // button3
+            // 
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3.ForeColor = System.Drawing.Color.White;
+            this.button3.Location = new System.Drawing.Point(18, 186);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(86, 23);
+            this.button3.TabIndex = 3;
+            this.button3.Text = "Player View";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.MouseDown += new System.Windows.Forms.MouseEventHandler(this.button3_MouseDown);
+            this.button3.MouseUp += new System.Windows.Forms.MouseEventHandler(this.button3_MouseUp);
+            // 
             // Dungee
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(783, 457);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.DMGroup);
             this.Controls.Add(this.groupBox1);
@@ -209,6 +225,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button3;
     }
 }
 

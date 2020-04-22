@@ -33,11 +33,11 @@ namespace Dungee
             };
             if (openFile.ShowDialog() == DialogResult.OK)
             {
-                foreach (Mini mini in pbDmMap.Controls.OfType<Mini>())
-                {
-                    mini.PlayerMini.Dispose();
-                    mini.Dispose();
-                }
+                pbDmMap.Controls.Clear();
+                pMap.pbPlayerMap.Controls.Clear();
+
+                pbDmMap.Update();
+                pMap.pbPlayerMap.Update();
                 string FileName = openFile.FileName;
                 if (Path.GetExtension(openFile.FileName) == ".sesh")
                 {
@@ -492,6 +492,21 @@ namespace Dungee
             {
                 pMap.Activate();
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_MouseDown(object sender, MouseEventArgs e)
+        {
+            pMap.Activate();
+        }
+
+        private void button3_MouseUp(object sender, MouseEventArgs e)
+        {
+            Activate();
         }
 
         private void scrollZoom_Scroll(object sender, ScrollEventArgs e)
