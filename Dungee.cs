@@ -15,7 +15,7 @@ namespace Dungee
     public partial class Dungee : Form
     {
         public List<Point> currentLine = new List<Point>();
-        Image dmMap;
+        Image dmMap, playerMap;
         PlayerMap pMap = new PlayerMap();
         float penRadius = 50;
         public Dungee()
@@ -29,7 +29,7 @@ namespace Dungee
         {
             OpenFileDialog openFile = new OpenFileDialog()
             {
-                Filter = "JPEG Image | *.jpg, *.jpeg | PNG Image | *.png | Dungee Session | *.sesh",
+                Filter = "Map File |*.jpg;*.jpeg;*.png;*.sesh",
             };
             if (openFile.ShowDialog() == DialogResult.OK)
             {
@@ -42,6 +42,7 @@ namespace Dungee
                 if (Path.GetExtension(openFile.FileName) == ".sesh")
                 {
                     string mapFile = Path.GetFileName(openFile.FileName).Replace(".sesh", ".map");
+                    string playerMapFile = Path.GetFileName(openFile.FileName).Replace(".sesh", ".pmap");
                     string fogPlayerFile = Path.GetFileName(openFile.FileName).Replace(".sesh", ".pfog");
                     string fogDMFile = Path.GetFileName(openFile.FileName).Replace(".sesh", ".dmfog");
                     string jsonFile = Path.GetFileName(openFile.FileName).Replace(".sesh", ".json");
@@ -52,6 +53,9 @@ namespace Dungee
                             ZipArchiveEntry mapEntry = archive.GetEntry(mapFile);
                             using (StreamReader readerMap = new StreamReader(mapEntry.Open())) 
                                 dmMap = Image.FromStream(readerMap.BaseStream);
+                            ZipArchiveEntry playerMapEntry = archive.GetEntry(playerMapFile);
+                            using (StreamReader readerMap = new StreamReader(playerMapEntry.Open()))
+                                playerMap = Image.FromStream(readerMap.BaseStream);
                             ZipArchiveEntry dmfogEntry = archive.GetEntry(fogDMFile);
                             using (StreamReader readerDMFog = new StreamReader(dmfogEntry.Open())) 
                                 pbDmMap.Image = Image.FromStream(readerDMFog.BaseStream);
@@ -71,6 +75,8 @@ namespace Dungee
                                     {
                                         Image image = Image.FromStream(readerMiniImg.BaseStream);
                                         Mini addMini = new Mini(image);
+                                        addMini.Name = mini.Name;
+                                        addMini.imgFileName = mini.ImgName;
                                         pbDmMap.Controls.Add(addMini);
                                         addMini.BringToFront();
                                         addMini.Show();
@@ -95,14 +101,25 @@ namespace Dungee
                 } else
                 {
                     dmMap = Image.FromFile(openFile.FileName);
-                    dmMap = ResizeImage(dmMap);
+                    dmMap = ResizeImage(dmMap, false);
                     pbDmMap.Width = dmMap.Width;
                     pbDmMap.Height = dmMap.Height;
                     pbDmMap.BackgroundImage = dmMap;
                     pMap.Show();
                     pMap.Location = panel1.PointToScreen(Point.Empty);
                     pMap.Size = panel1.Size;
-                    pMap.pbPlayerMap.BackgroundImage = dmMap;
+                    if (Path.GetFileName(openFile.FileName).Contains("-DM"))
+                    {
+                        string path = openFile.FileName.Replace(
+                            Path.GetFileName(openFile.FileName),
+                            Path.GetFileName(openFile.FileName).Replace("-DM", ""));
+                        pMap.pbPlayerMap.BackgroundImage = ResizeImage(Image.FromFile(path), false);
+                    }
+                    else
+                    {
+                        pMap.pbPlayerMap.BackgroundImage = dmMap;
+
+                    }
                     FillMap();
                 }
                 btnSave.Enabled = true;
@@ -261,28 +278,13 @@ namespace Dungee
                 penRadius, penRadius);
         }
 
-        public static Bitmap ResizeImage(Image img)
+        public Bitmap ResizeImage(Image img, bool upscale)
         {
             Rectangle screenSize = Screen.PrimaryScreen.Bounds;
             int height, width;
-            if(img.Height > img.Width)
-            {
-                //height = screenSize.Height - 150;
-                //sizeDiff = height;
-                //sizeDiff = sizeDiff / img.Height;
-                //width = Convert.ToInt32(img.Width * sizeDiff);
-                height = img.Height / 2;
-                width = img.Width / 2;
-            } else
-            {
-                //width = screenSize.Width;
-                //sizeDiff = width;
-                //sizeDiff = sizeDiff / img.Width;
-                //height = Convert.ToInt32(img.Height * sizeDiff);
-                height = img.Height / 2;
-                width = img.Width / 2;
-            }
-            
+            float scale = (float)50 / 100;
+            height = upscale ? Convert.ToInt32(img.Height / scale) : Convert.ToInt32(img.Height * scale);
+            width = upscale ? Convert.ToInt32(img.Height / scale) : Convert.ToInt32(img.Width * scale);
             Rectangle destRect = new Rectangle(0, 0, width, height);
             Bitmap destImage = new Bitmap(width, height);
 
@@ -396,6 +398,12 @@ namespace Dungee
                             {
                                 pbDmMap.BackgroundImage.Save(writerMap.BaseStream, ImageFormat.Jpeg);
                             }
+                            string playerMapImg = Path.GetFileName(saveFile.FileName).Replace(".sesh", ".pmap");
+                            ZipArchiveEntry playerMap = archive.CreateEntry(playerMapImg);
+                            using (StreamWriter writerMap = new StreamWriter(playerMap.Open()))
+                            {
+                               pMap.pbPlayerMap.BackgroundImage.Save(writerMap.BaseStream, ImageFormat.Jpeg);
+                            }
                             string fogDM = Path.GetFileName(saveFile.FileName).Replace(".sesh", ".dmfog");
                             ZipArchiveEntry dmfog = archive.CreateEntry(fogDM);
                             using (StreamWriter writerDMFog = new StreamWriter(dmfog.Open()))
@@ -411,17 +419,21 @@ namespace Dungee
                             List<Mini.MiniProperties> miniProperties = new List<Mini.MiniProperties>();
                             foreach (Mini mini in pbDmMap.Controls.OfType<Mini>())
                             {
-                                Mini.MiniProperties miniProps = mini.SaveMini();
-                                miniProperties.Add(miniProps);
-                                ZipArchiveEntry miniImg = archive.GetEntry(miniProps.ImgName);
-                                if (miniImg == null)
+                                if(mini.SaveMini() != null)
                                 {
-                                    miniImg = archive.CreateEntry(miniProps.ImgName);
+                                    Mini.MiniProperties miniProps = mini.SaveMini();
+                                    miniProperties.Add(miniProps);
+                                    ZipArchiveEntry miniImg = archive.GetEntry(miniProps.ImgName);
+                                    if (miniImg == null)
+                                    {
+                                        miniImg = archive.CreateEntry(miniProps.ImgName);
+                                    }
+                                    using (StreamWriter writerMini = new StreamWriter(miniImg.Open()))
+                                    {
+                                        mini.BackgroundImage.Save(writerMini.BaseStream, ImageFormat.Jpeg);
+                                    }
                                 }
-                                using (StreamWriter writerMini = new StreamWriter(miniImg.Open()))
-                                {
-                                    mini.BackgroundImage.Save(writerMini.BaseStream, ImageFormat.Jpeg);
-                                }
+
                             }
                             string miniFile = Path.GetFileName(saveFile.FileName).Replace(".sesh", ".json");
                             ZipArchiveEntry json = archive.CreateEntry(miniFile);
@@ -473,5 +485,39 @@ namespace Dungee
         {
 
         }
+
+        private void Dungee_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(ModifierKeys == Keys.Shift && e.KeyCode == Keys.P)
+            {
+                pMap.Activate();
+            }
+        }
+
+        private void scrollZoom_Scroll(object sender, ScrollEventArgs e)
+        {
+            bool upscale;
+            if(e.NewValue < e.OldValue)
+            {
+                upscale = false;
+
+            } else
+            {
+                upscale = true;
+            }
+            pbDmMap.Image = ResizeImage(pbDmMap.Image, upscale);
+            pbDmMap.BackgroundImage = ResizeImage(pbDmMap.BackgroundImage, upscale);
+            pMap.pbPlayerMap.Image = ResizeImage(pMap.pbPlayerMap.Image, upscale);
+            pMap.pbPlayerMap.BackgroundImage = ResizeImage(pMap.pbPlayerMap.BackgroundImage, upscale);
+            foreach (Mini mini in pbDmMap.Controls.OfType<Mini>())
+            {
+                //Image bgImage = ResizeImage(mini.BackgroundImage, upscale);
+                //mini.BackgroundImage = bgImage;
+                //mini.Image = ResizeImage(mini.Image, upscale);
+                //mini.PlayerMini.BackgroundImage = bgImage;
+                //mini.PlayerMini.Image = ResizeImage(mini.PlayerMini.Image, upscale);
+            }
+        }
+
     }
 }

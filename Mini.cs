@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dungee.Properties;
 using System.Runtime.Serialization;
@@ -20,7 +14,7 @@ namespace Dungee
         public Mini PlayerMini;
         public bool shown = false;
         public bool isBaddie = false;
-        private string imgFileName;
+        public string imgFileName;
         int imgSize = 30;
 
         [DataContract]
@@ -44,16 +38,17 @@ namespace Dungee
         public MiniProperties SaveMini()
         {
             string imgName;
+            string name;
             if (imgFileName == "DefaultMini" || imgFileName == "DefaultBaddie")
             {
                 imgName = imgFileName + ".mini";
             } else
             {
                 imgName = Path.GetFileName(imgFileName).Replace(Path.GetExtension(imgFileName), ".mini");
-            }
+            }            
             MiniProperties props = new MiniProperties()
             {
-                Name = "Mini",
+                Name = Name,
                 ImgName = imgName,
                 Active = shown,
                 Size = this.Size.Width,
@@ -67,6 +62,7 @@ namespace Dungee
         {
             InitializeComponent();
             SetupMini();
+            imgFileName = "DefaultMini";
         }
 
         public Mini(Mini mini)
@@ -88,7 +84,6 @@ namespace Dungee
             Bitmap miniFill = new Bitmap(ClientSize.Width, ClientSize.Height);
             using (Graphics g = Graphics.FromImage(miniFill)) g.Clear(Color.FromArgb(200, Color.Black));
             Image = miniFill;
-            imgFileName = "DefaultMini";
         }
 
         public void ShowMini()
@@ -142,6 +137,7 @@ namespace Dungee
             {
                 BackgroundImage = Image.FromFile(openFile.FileName);
                 imgFileName = Path.GetFileName(openFile.FileName);
+                Name = Path.GetFileNameWithoutExtension(openFile.FileName);
                 if (PlayerMini != null)
                 {
                     PlayerMini.BackgroundImage = BackgroundImage;
@@ -164,7 +160,7 @@ namespace Dungee
                     ShowMini();
                 }
             }
-            if (ModifierKeys == Keys.Control && e.Button == MouseButtons.Left)
+            if (ModifierKeys == Keys.Control && e.Button == MouseButtons.Right)
             {
                 PlayerMini.Dispose();
                 Dispose();

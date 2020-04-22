@@ -185,6 +185,7 @@
             this.DoubleBuffered = true;
             this.Name = "Dungee";
             this.Text = "Dungee";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dungee_KeyDown);
             this.Move += new System.EventHandler(this.Dungee_Move);
             this.Resize += new System.EventHandler(this.Dungee_Resize);
             this.groupBox1.ResumeLayout(false);
