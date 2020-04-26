@@ -34,6 +34,7 @@
             // 
             // pbPlayerMap
             // 
+            this.pbPlayerMap.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pbPlayerMap.Location = new System.Drawing.Point(0, 0);
             this.pbPlayerMap.Margin = new System.Windows.Forms.Padding(0);
             this.pbPlayerMap.Name = "pbPlayerMap";
@@ -48,6 +49,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(661, 410);
             this.Controls.Add(this.pbPlayerMap);
             this.DoubleBuffered = true;

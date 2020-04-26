@@ -199,6 +199,7 @@
             this.Controls.Add(this.DMGroup);
             this.Controls.Add(this.groupBox1);
             this.DoubleBuffered = true;
+            this.KeyPreview = true;
             this.Name = "Dungee";
             this.Text = "Dungee";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dungee_KeyDown);

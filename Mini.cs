@@ -15,7 +15,7 @@ namespace Dungee
         public bool shown = false;
         public bool isBaddie = false;
         public string imgFileName;
-        int imgSize = 30;
+        public int imgSize = 30;
 
         [DataContract]
         public class MiniProperties
@@ -83,7 +83,10 @@ namespace Dungee
         {
             Bitmap miniFill = new Bitmap(ClientSize.Width, ClientSize.Height);
             using (Graphics g = Graphics.FromImage(miniFill)) g.Clear(Color.FromArgb(200, Color.Black));
+            this.MouseWheel += Mini_MouseWheel;
             Image = miniFill;
+            Width = imgSize;
+            Height = imgSize;
         }
 
         public void ShowMini()
@@ -190,7 +193,7 @@ namespace Dungee
             {
                 ((HandledMouseEventArgs)e).Handled = true;
                 const float scale_per_delta = 10f / 120;
-                if (imgSize >= 25 && imgSize <= 50)
+                if (imgSize >= 25 && imgSize <= 100)
                 {
                     imgSize += Convert.ToInt32(e.Delta * scale_per_delta);
                 }
@@ -198,9 +201,9 @@ namespace Dungee
                 {
                     imgSize = 25;
                 }
-                else if (imgSize > 50)
+                else if (imgSize > 100)
                 {
-                    imgSize = 50;
+                    imgSize = 100;
                 }
                 Size = new Size(imgSize, imgSize);
                 PlayerMini.Size = Size;
@@ -211,6 +214,11 @@ namespace Dungee
                 Invalidate();
                 Update();
             }
+        }
+
+        private void Mini_MouseEnter(object sender, EventArgs e)
+        {
+            Dungee.mouseOverControl = (Mini)sender;
         }
     }
 }

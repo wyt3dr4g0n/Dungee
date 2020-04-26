@@ -15,6 +15,7 @@ namespace Dungee
     public partial class Dungee : Form
     {
         public List<Point> currentLine = new List<Point>();
+        public static Control mouseOverControl;
         Image dmMap, playerMap;
         PlayerMap pMap = new PlayerMap();
         float penRadius = 50;
@@ -209,19 +210,27 @@ namespace Dungee
 
         private void pbDmMap_MouseDown(object sender, MouseEventArgs e)
         {
-            if(ModifierKeys == Keys.Shift)
+            if(e.Button == MouseButtons.Left)
             {
-                Mini mini = new Mini(Resources.DefaultMini);
-                pbDmMap.Controls.Add(mini);
-                mini.BringToFront();
-                mini.Show();
-                mini.CreatePlayerMini(pMap.pbPlayerMap);
-                mini.Location = pbDmMap.PointToClient(Cursor.Position);
-            } else
-            {
-                currentLine.Add(e.Location);
-                drawOntoImage();
+                if(ModifierKeys == Keys.Shift)
+                {
+                    Mini mini = new Mini(Resources.DefaultMini);
+                    pbDmMap.Controls.Add(mini);
+                    mini.BringToFront();
+                    mini.Show();
+                    mini.CreatePlayerMini(pMap.pbPlayerMap);
+                    mini.Location = pbDmMap.PointToClient(Cursor.Position);
+                } else
+                {
+                    currentLine.Add(e.Location);
+                    drawOntoImage();
+                }
             }
+            else if (e.Button == MouseButtons.Right)
+            {
+
+            }
+
 
         }
         private void pbDmMap_MouseUp(object sender, MouseEventArgs e)
@@ -230,11 +239,11 @@ namespace Dungee
         }
         private void pbDmMap_MouseEnter(object sender, EventArgs e)
         {
-            //Cursor.Hide();
+            mouseOverControl = (Control)sender;
         }
         private void pbDmMap_MouseLeave(object sender, EventArgs e)
         {
-            //Cursor.Show();
+            
         }
         private void pbDmMap_MouseWheel(object sender, MouseEventArgs e)
         {
@@ -488,10 +497,90 @@ namespace Dungee
 
         private void Dungee_KeyDown(object sender, KeyEventArgs e)
         {
-            if(ModifierKeys == Keys.Shift && e.KeyCode == Keys.P)
+            if (e.Control && e.KeyCode == Keys.Up)
             {
-                pMap.Activate();
+                if (mouseOverControl.GetType() == typeof(Mini))
+                {
+                    Mini activeMini = (Mini)mouseOverControl;
+                    if (activeMini.imgSize >= 25 && activeMini.imgSize < 100)
+                    {
+                        activeMini.imgSize += 5;
+                    }
+                    else if (activeMini.imgSize < 25)
+                    {
+                        activeMini.imgSize = 25;
+                    }
+                    else if (activeMini.imgSize > 100)
+                    {
+                        activeMini.imgSize = 100;
+                    }
+                    activeMini.Size = new Size(activeMini.imgSize, activeMini.imgSize);
+                    activeMini.PlayerMini.Size = activeMini.Size;
+
+                    activeMini.Invalidate();
+                    activeMini.Update();
+                }
+                else
+                {
+                    if (penRadius >= 10 && penRadius < 500)
+                    {
+                        penRadius += 10;
+                    }
+                    else if (penRadius < 10)
+                    {
+                        penRadius = 10;
+                    }
+                    else if (penRadius > 500)
+                    {
+                        penRadius = 500;
+                    }
+                    pbDmMap.Invalidate();
+                    pbDmMap.Update();
+                }
+            } else if (e.Control && e.KeyCode == Keys.Down)
+            {
+                if (mouseOverControl.GetType() == typeof(Mini))
+                {
+                    Mini activeMini = (Mini)mouseOverControl;
+                    if (activeMini.imgSize > 25 && activeMini.imgSize <= 100)
+                    {
+                        activeMini.imgSize -= 5;
+                    }
+                    else if (activeMini.imgSize < 25)
+                    {
+                        activeMini.imgSize = 25;
+                    }
+                    else if (activeMini.imgSize > 100)
+                    {
+                        activeMini.imgSize = 100;
+                    }
+                    activeMini.Size = new Size(activeMini.imgSize, activeMini.imgSize);
+                    activeMini.PlayerMini.Size = activeMini.Size;
+
+                    activeMini.Invalidate();
+                    activeMini.Update();
+                } else
+                {
+                    if (penRadius >= 10 && penRadius < 500)
+                    {
+                        penRadius -= 10;
+                    }
+                    else if (penRadius <= 10)
+                    {
+                        penRadius = 10;
+                    }
+                    else if (penRadius > 500)
+                    {
+                        penRadius = 500;
+                    }
+                    pbDmMap.Invalidate();
+                    pbDmMap.Update();
+                }
+            } else if (e.KeyCode == Keys.S)
+            {
+                MessageBox.Show(mouseOverControl.GetType().ToString());
             }
+;
         }
 
         private void button3_Click(object sender, EventArgs e)

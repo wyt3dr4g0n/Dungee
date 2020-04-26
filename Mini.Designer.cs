@@ -33,13 +33,12 @@
             // 
             // Mini
             // 
-            this.Size = new System.Drawing.Size(imgSize, imgSize);
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.DoubleClick += Mini_DoubleClick;
-            this.MouseMove += Mini_MouseMove;
-            this.MouseClick += Mini_MouseClick;
-            this.MouseWheel += Mini_MouseWheel;
-            //this.Location = Parent.PointToScreen(System.Windows.Forms.Cursor.Position);
+            this.Size = new System.Drawing.Size(50, 50);
+            this.DoubleClick += new System.EventHandler(this.Mini_DoubleClick);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Mini_MouseClick);
+            this.MouseEnter += new System.EventHandler(this.Mini_MouseEnter);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Mini_MouseMove);
             ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
             this.ResumeLayout(false);
 
