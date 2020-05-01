@@ -19,6 +19,7 @@ namespace Dungee
         Image dmMap, playerMap;
         PlayerMap pMap = new PlayerMap();
         float penRadius = 50;
+        bool fill = false;
         public Dungee()
         {
             InitializeComponent();
@@ -171,7 +172,7 @@ namespace Dungee
             FillMap();
         }
 
-        public void drawOntoImage()
+        public void drawOntoImage(Color penColor, float penRad)
         {
             if(pbDmMap.Image != null)
             {
@@ -180,13 +181,14 @@ namespace Dungee
                     G.CompositingMode = CompositingMode.SourceCopy;
                     G.SmoothingMode = SmoothingMode.HighQuality;
                     G.CompositingQuality = CompositingQuality.HighQuality;
-
-                    using (Pen somePen = new Pen(Color.Transparent, penRadius))
+                    penColor = fill ? Color.FromArgb(200, Color.Black) : penColor;
+                    using (Pen somePen = new Pen(penColor, penRad))
                     {
-                        somePen.MiterLimit = penRadius / 2;
+                        somePen.MiterLimit = penRad / 2;
                         somePen.EndCap = LineCap.Round;
                         somePen.LineJoin = LineJoin.Round;
                         somePen.StartCap = LineCap.Round;
+                        
                         if (currentLine.Count > 1)
                         {
                             G.DrawCurve(somePen, currentLine.ToArray());
@@ -195,7 +197,17 @@ namespace Dungee
                                 pG.CompositingMode = G.CompositingMode;
                                 pG.CompositingQuality = G.CompositingQuality;
                                 pG.SmoothingMode = G.SmoothingMode;
-                                pG.DrawCurve(somePen, currentLine.ToArray());
+                                Pen usePen = !fill ? somePen : new Pen(Color.Black, penRadius)
+                                {
+                                    MiterLimit = somePen.MiterLimit,
+                                    EndCap = somePen.EndCap,
+                                    LineJoin = somePen.LineJoin,
+                                    StartCap = somePen.StartCap
+                                };
+                                using (usePen)
+                                {
+                                    pG.DrawCurve(usePen, currentLine.ToArray());
+                                }
                             }
                         }
                     }
@@ -223,7 +235,7 @@ namespace Dungee
                 } else
                 {
                     currentLine.Add(e.Location);
-                    drawOntoImage();
+                    drawOntoImage(Color.Transparent, penRadius);
                 }
             }
             else if (e.Button == MouseButtons.Right)
@@ -271,10 +283,15 @@ namespace Dungee
         }
         private void pbDmMap_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if(e.Button == MouseButtons.Left)
             {
                 currentLine.Add(e.Location);
-                drawOntoImage();
+                drawOntoImage(Color.Transparent, penRadius);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                currentLine.Add(e.Location);
+                drawOntoImage(Color.Red, 3f);
             }
             pbDmMap.Invalidate();
             pbDmMap.Update();
@@ -287,15 +304,37 @@ namespace Dungee
                 penRadius, penRadius);
         }
 
-        public Bitmap ResizeImage(Image img, bool upscale)
+        public static Bitmap ResizeImage(Image img, bool upscale)
         {
-            Rectangle screenSize = Screen.PrimaryScreen.Bounds;
             int height, width;
-            float scale = (float)50 / 100;
+            float scale = .5f;
             height = upscale ? Convert.ToInt32(img.Height / scale) : Convert.ToInt32(img.Height * scale);
-            width = upscale ? Convert.ToInt32(img.Height / scale) : Convert.ToInt32(img.Width * scale);
+            width = upscale ? Convert.ToInt32(img.Width / scale) : Convert.ToInt32(img.Width * scale);
             Rectangle destRect = new Rectangle(0, 0, width, height);
             Bitmap destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(img.HorizontalResolution, img.VerticalResolution);
+            using (Graphics G = Graphics.FromImage(destImage))
+            {
+                G.CompositingMode = CompositingMode.SourceCopy;
+                G.CompositingQuality = CompositingQuality.HighQuality;
+                G.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                G.SmoothingMode = SmoothingMode.HighQuality;
+                G.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (ImageAttributes wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    G.DrawImage(img, destRect, 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+            return destImage;
+        }
+
+        public static Bitmap ResizeImage(Image img, int destWidth, int destHeight)
+        {
+            Rectangle destRect = new Rectangle(0, 0, destWidth, destHeight);
+            Bitmap destImage = new Bitmap(destWidth, destHeight);
 
             destImage.SetResolution(img.HorizontalResolution, img.VerticalResolution);
             using (Graphics G = Graphics.FromImage(destImage))
@@ -439,7 +478,7 @@ namespace Dungee
                                     }
                                     using (StreamWriter writerMini = new StreamWriter(miniImg.Open()))
                                     {
-                                        mini.BackgroundImage.Save(writerMini.BaseStream, ImageFormat.Jpeg);
+                                        mini.miniImg.Save(writerMini.BaseStream, ImageFormat.Png);
                                     }
                                 }
 
@@ -576,9 +615,23 @@ namespace Dungee
                     pbDmMap.Invalidate();
                     pbDmMap.Update();
                 }
-            } else if (e.KeyCode == Keys.S)
+            } 
+            else if (e.KeyCode == Keys.X)
             {
-                MessageBox.Show(mouseOverControl.GetType().ToString());
+                if(mouseOverControl.GetType() == typeof(Mini))
+                {
+                    Mini activeMini = (Mini)mouseOverControl;
+                    activeMini.KillMini();
+                }
+            }
+            else if (e.KeyCode == Keys.Z)
+            {
+                fill = true;
+            }
+            else if (e.KeyCode == Keys.A)
+            {
+                //Area newArea = new Area();
+                //newArea.Image
             }
 ;
         }
@@ -596,6 +649,29 @@ namespace Dungee
         private void button3_MouseUp(object sender, MouseEventArgs e)
         {
             Activate();
+        }
+
+        private void Dungee_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Z)
+            {
+                fill = false;
+            }
+        }
+
+        private void textBox1_Enter(object sender, EventArgs e)
+        {
+            ActiveControl = pbDmMap;
+        }
+
+        private void textBox1_MouseEnter(object sender, EventArgs e)
+        {
+            ActiveControl = pbDmMap;
+        }
+
+        private void textBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            ActiveControl = pbDmMap;
         }
 
         private void scrollZoom_Scroll(object sender, ScrollEventArgs e)

@@ -71,7 +71,8 @@
             this.button2.Location = new System.Drawing.Point(6, 119);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(86, 23);
-            this.button2.TabIndex = 1;
+            this.button2.TabIndex = 0;
+            this.button2.TabStop = false;
             this.button2.Text = "Fill Fog";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -83,7 +84,8 @@
             this.button1.Location = new System.Drawing.Point(6, 90);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(86, 23);
-            this.button1.TabIndex = 1;
+            this.button1.TabIndex = 0;
+            this.button1.TabStop = false;
             this.button1.Text = "Clear Fog";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click_1);
@@ -96,6 +98,7 @@
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(86, 23);
             this.btnSave.TabIndex = 0;
+            this.btnSave.TabStop = false;
             this.btnSave.Text = "Save Map";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -107,6 +110,7 @@
             this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(86, 23);
             this.btnLoad.TabIndex = 0;
+            this.btnLoad.TabStop = false;
             this.btnLoad.Text = "Load Map";
             this.btnLoad.UseVisualStyleBackColor = true;
             this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
@@ -164,15 +168,23 @@
             // 
             this.textBox1.BackColor = System.Drawing.Color.Black;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox1.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox1.ForeColor = System.Drawing.Color.White;
+            this.textBox1.HideSelection = false;
+            this.textBox1.ImeMode = System.Windows.Forms.ImeMode.Off;
             this.textBox1.Location = new System.Drawing.Point(5, 245);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.ShortcutsEnabled = false;
             this.textBox1.Size = new System.Drawing.Size(105, 207);
-            this.textBox1.TabIndex = 2;
+            this.textBox1.TabIndex = 0;
+            this.textBox1.TabStop = false;
             this.textBox1.Text = resources.GetString("textBox1.Text");
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.textBox1.Enter += new System.EventHandler(this.textBox1_Enter);
+            this.textBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.textBox1_MouseDown);
+            this.textBox1.MouseEnter += new System.EventHandler(this.textBox1_MouseEnter);
             // 
             // button3
             // 
@@ -181,7 +193,8 @@
             this.button3.Location = new System.Drawing.Point(18, 186);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(86, 23);
-            this.button3.TabIndex = 3;
+            this.button3.TabIndex = 0;
+            this.button3.TabStop = false;
             this.button3.Text = "Player View";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
@@ -203,6 +216,7 @@
             this.Name = "Dungee";
             this.Text = "Dungee";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dungee_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Dungee_KeyUp);
             this.Move += new System.EventHandler(this.Dungee_Move);
             this.Resize += new System.EventHandler(this.Dungee_Resize);
             this.groupBox1.ResumeLayout(false);

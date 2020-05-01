@@ -14,8 +14,11 @@ namespace Dungee
         public Mini PlayerMini;
         public bool shown = false;
         public bool isBaddie = false;
+        public bool isDead = false;
         public string imgFileName;
-        public int imgSize = 30;
+        public int imgSize = 50;
+        public Image miniImg;
+
 
         [DataContract]
         public class MiniProperties
@@ -38,10 +41,9 @@ namespace Dungee
         public MiniProperties SaveMini()
         {
             string imgName;
-            string name;
-            if (imgFileName == "DefaultMini" || imgFileName == "DefaultBaddie")
+            if (imgFileName == "DefaultMini" || imgFileName == "DefaultBaddie" || imgFileName == null)
             {
-                imgName = imgFileName + ".mini";
+                imgName = imgFileName != null ? imgFileName + ".mini" : Location.X.ToString() + "-" + Location.Y.ToString() + ".mini";
             } else
             {
                 imgName = Path.GetFileName(imgFileName).Replace(Path.GetExtension(imgFileName), ".mini");
@@ -63,30 +65,38 @@ namespace Dungee
             InitializeComponent();
             SetupMini();
             imgFileName = "DefaultMini";
+            Width = imgSize;
+            Height = imgSize;
         }
 
         public Mini(Mini mini)
         {
             InitializeComponent();
             SetupMini();
-            BackgroundImage = mini.BackgroundImage;
+            BackgroundImage = mini.miniImg;
+            imgFileName = mini.imgFileName;
+            Width = imgSize;
+            Height = imgSize;
         }
 
         public Mini(Image img)
         {
             InitializeComponent();
+            miniImg = img;
+            BackgroundImage = miniImg;
             SetupMini();
-            BackgroundImage = img;
+            Width = imgSize;
+            Height = imgSize;
         }
 
         public void SetupMini()
         {
-            Bitmap miniFill = new Bitmap(ClientSize.Width, ClientSize.Height);
+            Bitmap miniFill = new Bitmap(imgSize, imgSize);
             using (Graphics g = Graphics.FromImage(miniFill)) g.Clear(Color.FromArgb(200, Color.Black));
             this.MouseWheel += Mini_MouseWheel;
             Image = miniFill;
-            Width = imgSize;
-            Height = imgSize;
+            BackColor = Color.Transparent;
+            SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         public void ShowMini()
@@ -95,14 +105,31 @@ namespace Dungee
             using (Graphics g = Graphics.FromImage(miniFill)) g.Clear(Color.Transparent);
             Image = miniFill;
             shown = true;
-            PlayerMini.Image = miniFill;
             PlayerMini.shown = true;
             PlayerMini.Show();
             PlayerMini.BringToFront();
         }
 
+        public void KillMini()
+        {
+            if (shown)
+            {
+                if (isDead)
+                {
+                    Image = null;
+                    PlayerMini.Image = null;
+                } else
+                {
+                    Image = Resources.redx;
+                    PlayerMini.Image = Resources.redx;
+                }
+                isDead = !isDead;
+            }
+        }
+
         public void HideMini()
         {
+            if (isDead) KillMini();
             SetupMini();
             PlayerMini.Hide();
             PlayerMini.shown = false;
@@ -115,6 +142,10 @@ namespace Dungee
             playerMap.Controls.Add(PlayerMini);
             PlayerMini.Hide();
             PlayerMini.Location = Parent.PointToClient(Cursor.Position);
+            PlayerMini.BackColor = Color.Transparent;
+            PlayerMini.Image = null;
+            PlayerMini.SizeMode = PictureBoxSizeMode.StretchImage;
+            PlayerMini.BackgroundImage = miniImg;
         }
 
         private void Mini_MouseMove(object sender, MouseEventArgs e)
@@ -138,12 +169,13 @@ namespace Dungee
             openFile = new OpenFileDialog();
             if (openFile.ShowDialog() == DialogResult.OK)
             {
-                BackgroundImage = Image.FromFile(openFile.FileName);
+                miniImg = Image.FromFile(openFile.FileName);
+                BackgroundImage = miniImg;
                 imgFileName = Path.GetFileName(openFile.FileName);
                 Name = Path.GetFileNameWithoutExtension(openFile.FileName);
                 if (PlayerMini != null)
                 {
-                    PlayerMini.BackgroundImage = BackgroundImage;
+                    PlayerMini.BackgroundImage = miniImg;
                 }
             }
             //SelectMini selectMini = new SelectMini();
@@ -173,13 +205,13 @@ namespace Dungee
                 if (isBaddie)
                 {
                     BackgroundImage = Resources.DefaultMini;
-                    PlayerMini.BackgroundImage = BackgroundImage;
+                    PlayerMini.BackgroundImage = miniImg;
                     isBaddie = false;
                     imgFileName = "DefaultMini";
                 } else
                 {
                     BackgroundImage = Resources.DefaultBaddie;
-                    PlayerMini.BackgroundImage = BackgroundImage;
+                    PlayerMini.BackgroundImage = miniImg;
                     isBaddie = true;
                     imgFileName = "DefaultBaddie";
                 }

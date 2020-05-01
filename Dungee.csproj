@@ -81,6 +81,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Area.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Area.Designer.cs">
+      <DependentUpon>Area.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dungee.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -107,6 +113,9 @@
     <Compile Include="SelectMini.Designer.cs">
       <DependentUpon>SelectMini.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Area.resx">
+      <DependentUpon>Area.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dungee.resx">
       <DependentUpon>Dungee.cs</DependentUpon>
     </EmbeddedResource>
@@ -160,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="OneDrive.ico" />
+    <None Include="Resources\hiclipart.com.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
