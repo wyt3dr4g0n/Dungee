@@ -60,6 +60,7 @@
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Player Map (SHARE THIS SCREEN)";
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PlayerMap_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerMap)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

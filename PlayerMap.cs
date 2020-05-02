@@ -31,5 +31,15 @@ namespace Dungee
                     break;
             }
         }
+
+        private void PlayerMap_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.S:
+                    main.Activate();
+                    break;
+            }
+        }
     }
 }

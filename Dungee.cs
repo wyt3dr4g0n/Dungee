@@ -637,6 +637,10 @@ namespace Dungee
                 pMap.pbPlayerMap.Invalidate();
                 pMap.pbPlayerMap.Update();
             }
+            else if (e.KeyCode == Keys.S)
+            {
+                pMap.Activate();
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -663,6 +667,9 @@ namespace Dungee
                     break;
                 case Keys.A:
                     cursorType = CursorType.Draw;
+                    break;
+                case Keys.S:
+                    this.Activate();
                     break;
             }
         }
