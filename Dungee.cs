@@ -20,6 +20,8 @@ namespace Dungee
         PlayerMap pMap = new PlayerMap();
         float penRadius = 50;
         bool fill = false;
+        float zoom;
+        Size mapRes;
         public Dungee()
         {
             InitializeComponent();
@@ -70,6 +72,8 @@ namespace Dungee
                                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                                 List<Mini.MiniProperties> minis = 
                                     serializer.Deserialize<List<Mini.MiniProperties>>(readerMini.ReadToEnd());
+                                zoomScroll.Enabled = minis.Count == 0;
+                                zoomScroll.Visible = minis.Count == 0;
                                 foreach (Mini.MiniProperties mini in minis)
                                 {
                                     ZipArchiveEntry miniImgEntry = archive.GetEntry(mini.ImgName);
@@ -88,14 +92,15 @@ namespace Dungee
                                         addMini.PlayerMini.Location = addMini.Location;
                                         addMini.PlayerMini.Size = addMini.Size;
                                         if (mini.Active) addMini.ShowMini();
+                                        if (mini.Dead) addMini.KillMini();
                                     }
                                 }
                             }
                         }
                     }
                     pbDmMap.BackgroundImage = dmMap;
-                    pbDmMap.Width = dmMap.Width;
-                    pbDmMap.Height = dmMap.Height;
+                    //pbDmMap.Width = dmMap.Width;
+                    //pbDmMap.Height = dmMap.Height;
                     pMap.Show();
                     pMap.Location = panel1.PointToScreen(Point.Empty);
                     pMap.Size = panel1.Size;
@@ -103,7 +108,7 @@ namespace Dungee
                 } else
                 {
                     dmMap = Image.FromFile(openFile.FileName);
-                    dmMap = ResizeImage(dmMap, false);
+                    //dmMap = ResizeImage(dmMap, false);
                     pbDmMap.Width = dmMap.Width;
                     pbDmMap.Height = dmMap.Height;
                     pbDmMap.BackgroundImage = dmMap;
@@ -115,7 +120,7 @@ namespace Dungee
                         string path = openFile.FileName.Replace(
                             Path.GetFileName(openFile.FileName),
                             Path.GetFileName(openFile.FileName).Replace("-DM", ""));
-                        pMap.pbPlayerMap.BackgroundImage = ResizeImage(Image.FromFile(path), false);
+                        pMap.pbPlayerMap.BackgroundImage = Image.FromFile(path); //ResizeImage(Image.FromFile(path), false);
                     }
                     else
                     {
@@ -123,10 +128,17 @@ namespace Dungee
 
                     }
                     FillMap();
+                    zoomScroll.Enabled = true;
+                    zoomScroll.Visible = true;
                 }
                 btnSave.Enabled = true;
-                button1.Enabled = true;
-                button2.Enabled = true;
+                btnClear.Enabled = true;
+                btnFill.Enabled = true;
+                btnPlayerView.Enabled = true;
+                zoomScroll.Value = 100;
+                lblZoom.Enabled = true;
+
+                mapRes = pbDmMap.Image.Size;
                 Activate();
             }
         }
@@ -181,7 +193,7 @@ namespace Dungee
                     G.CompositingMode = CompositingMode.SourceCopy;
                     G.SmoothingMode = SmoothingMode.HighQuality;
                     G.CompositingQuality = CompositingQuality.HighQuality;
-                    penColor = fill ? Color.FromArgb(200, Color.Black) : penColor;
+                    penColor = !fill ? penColor : Color.FromArgb(200, Color.Black);
                     using (Pen somePen = new Pen(penColor, penRad))
                     {
                         somePen.MiterLimit = penRad / 2;
@@ -232,6 +244,8 @@ namespace Dungee
                     mini.Show();
                     mini.CreatePlayerMini(pMap.pbPlayerMap);
                     mini.Location = pbDmMap.PointToClient(Cursor.Position);
+                    zoomScroll.Visible = false;
+                    zoomScroll.Enabled = false;
                 } else
                 {
                     currentLine.Add(e.Location);
@@ -298,6 +312,7 @@ namespace Dungee
         }
         private void pbDmMap_Paint(object sender, PaintEventArgs e)
         {
+
             Point local = pbDmMap.PointToClient(Cursor.Position);
             e.Graphics.DrawEllipse(Pens.White, local.X - penRadius/2, 
                 local.Y - penRadius/2, 
@@ -674,30 +689,29 @@ namespace Dungee
             ActiveControl = pbDmMap;
         }
 
-        private void scrollZoom_Scroll(object sender, ScrollEventArgs e)
+        private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
-            bool upscale;
-            if(e.NewValue < e.OldValue)
-            {
-                upscale = false;
+            int zoomLevel = e.NewValue - 100;
+            int zoomOld = e.OldValue - 100;
+            zoom = zoomLevel / 100f;
+            Size newSize = new Size(
+                (int)(mapRes.Width + (mapRes.Width * zoom)),
+                (int)(mapRes.Height + (mapRes.Height * zoom))
+            );
 
-            } else
-            {
-                upscale = true;
-            }
-            pbDmMap.Image = ResizeImage(pbDmMap.Image, upscale);
-            pbDmMap.BackgroundImage = ResizeImage(pbDmMap.BackgroundImage, upscale);
-            pMap.pbPlayerMap.Image = ResizeImage(pMap.pbPlayerMap.Image, upscale);
-            pMap.pbPlayerMap.BackgroundImage = ResizeImage(pMap.pbPlayerMap.BackgroundImage, upscale);
-            foreach (Mini mini in pbDmMap.Controls.OfType<Mini>())
-            {
-                //Image bgImage = ResizeImage(mini.BackgroundImage, upscale);
-                //mini.BackgroundImage = bgImage;
-                //mini.Image = ResizeImage(mini.Image, upscale);
-                //mini.PlayerMini.BackgroundImage = bgImage;
-                //mini.PlayerMini.Image = ResizeImage(mini.PlayerMini.Image, upscale);
-            }
+            pbDmMap.Image = ResizeImage(pbDmMap.Image, newSize.Width, newSize.Height);
+            pMap.pbPlayerMap.Image = ResizeImage(pMap.pbPlayerMap.Image, newSize.Width, newSize.Height);
+            pbDmMap.Invalidate();
+            pMap.pbPlayerMap.Invalidate();
+            pbDmMap.Update();
+            pMap.pbPlayerMap.Update();
         }
 
+        private void btnHelp_Click(object sender, EventArgs e)
+        {
+            Help help = new Help();
+            help.Show();
+            help.Location = PointToScreen(pbDmMap.Location);
+        }
     }
 }

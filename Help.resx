@@ -117,4 +117,27 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="textBox1.Text" xml:space="preserve">
+    <value>Add Mini = Shift + Left Click
+
+Remove Mini = Shift + Right Click
+
+Change Mini Image = Double Click
+
+Hide/Show Mini = Right Click
+
+Kill Mini = Hover Mini &amp; X Key
+
+Draw Fog = Hold Z Key + Draw
+
+Draw Red Markup = Right Click Draw
+
+Size Brush = Ctrl + Scrollwheel
+		    OR
+	     Ctrl + Up/Down Arrow
+
+Size Mini = Hover Mini &amp; Ctrl + Scrollwheel 
+		    OR
+	    Hover Mini &amp; Ctrl + Up/Down Arrow</value>
+  </data>
 </root>

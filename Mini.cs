@@ -30,6 +30,8 @@ namespace Dungee
             [DataMember]
             public bool Active;
             [DataMember]
+            public bool Dead;
+            [DataMember]
             public Int32 Size;
             [DataMember]
             public Int32 X;
@@ -47,12 +49,13 @@ namespace Dungee
             } else
             {
                 imgName = Path.GetFileName(imgFileName).Replace(Path.GetExtension(imgFileName), ".mini");
-            }            
+            }
             MiniProperties props = new MiniProperties()
             {
                 Name = Name,
                 ImgName = imgName,
                 Active = shown,
+                Dead = isDead,
                 Size = this.Size.Width,
                 X = this.Location.X,
                 Y = this.Location.Y
@@ -197,6 +200,12 @@ namespace Dungee
             }
             if (ModifierKeys == Keys.Control && e.Button == MouseButtons.Right)
             {
+                if (Parent.Controls.Count == 1)
+                {
+                    Dungee dungee = (Dungee)Parent.Parent.Parent.Parent;
+                    dungee.zoomScroll.Visible = true;
+                    dungee.zoomScroll.Enabled = true;
+                }
                 PlayerMini.Dispose();
                 Dispose();
             }
