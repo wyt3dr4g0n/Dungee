@@ -92,6 +92,7 @@ namespace Dungee
             Height = imgSize;
         }
 
+
         public void SetupMini()
         {
             Bitmap miniFill = new Bitmap(imgSize, imgSize);
@@ -234,7 +235,7 @@ namespace Dungee
             {
                 ((HandledMouseEventArgs)e).Handled = true;
                 const float scale_per_delta = 10f / 120;
-                if (imgSize >= 25 && imgSize <= 100)
+                if (imgSize >= 25 && imgSize <= 200)
                 {
                     imgSize += Convert.ToInt32(e.Delta * scale_per_delta);
                 }
@@ -242,9 +243,9 @@ namespace Dungee
                 {
                     imgSize = 25;
                 }
-                else if (imgSize > 100)
+                else if (imgSize > 200)
                 {
-                    imgSize = 100;
+                    imgSize = 200;
                 }
                 Size = new Size(imgSize, imgSize);
                 PlayerMini.Size = Size;

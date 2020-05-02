@@ -17,14 +17,18 @@ namespace Dungee
         public List<Point> currentLine = new List<Point>();
         public static Control mouseOverControl;
         Image dmMap, playerMap;
-        PlayerMap pMap = new PlayerMap();
-        float penRadius = 50;
+        PlayerMap pMap;
+        public float penRadius = 50;
         bool fill = false;
         float zoom;
+        public enum CursorType { Draw = 0, AOE = 1 }
+        public CursorType cursorType;
+        
         Size mapRes;
         public Dungee()
         {
             InitializeComponent();
+            pMap = new PlayerMap(this);
             FillMap();
             pbDmMap.MouseWheel += new MouseEventHandler(pbDmMap_MouseWheel);
         }
@@ -277,12 +281,12 @@ namespace Dungee
             {
                 ((HandledMouseEventArgs)e).Handled = true;
                 const float scale_per_delta = 10f / 120;
-                if (penRadius >= 10 && penRadius < 500) { 
+                if (penRadius >= 10 && penRadius <= 500) { 
                     penRadius += e.Delta * scale_per_delta;
-                } else if (penRadius < 10)
+                } else if (penRadius <= 10)
                 {
                     penRadius = 10;
-                } else if (penRadius > 500)
+                } else if (penRadius >= 500)
                 {
                     penRadius = 500;
                 }
@@ -312,11 +316,22 @@ namespace Dungee
         }
         private void pbDmMap_Paint(object sender, PaintEventArgs e)
         {
-
             Point local = pbDmMap.PointToClient(Cursor.Position);
-            e.Graphics.DrawEllipse(Pens.White, local.X - penRadius/2, 
-                local.Y - penRadius/2, 
-                penRadius, penRadius);
+            switch (cursorType)
+            {
+                case CursorType.Draw:
+                    e.Graphics.DrawEllipse(Pens.White, local.X - penRadius/2, 
+                        local.Y - penRadius/2, 
+                        penRadius, penRadius);
+                    break;
+                case CursorType.AOE:
+                    e.Graphics.FillEllipse(new SolidBrush(Color.FromArgb(100, Color.Red)), local.X - penRadius / 2,
+                        local.Y - penRadius / 2,
+                        penRadius, penRadius);
+                    break;
+            }
+
+
         }
 
         public static Bitmap ResizeImage(Image img, bool upscale)
@@ -380,36 +395,6 @@ namespace Dungee
             EmptyMap();
         }
 
-        private void addMiniToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Mini mini = new Mini(Resources.Kraw);
-            ToolStripItem item = sender as ToolStripItem;
-            ToolStrip toolStrip = item.Owner as ToolStrip;
-            pbDmMap.Controls.Add(mini);
-            mini.BringToFront();
-            mini.Show();
-            mini.CreatePlayerMini(pMap.pbPlayerMap);
-            mini.Location = pbDmMap.PointToClient(new Point(toolStrip.Location.X - mini.Width/2, toolStrip.Location.Y - mini.Height/2));
-        }
-
-        private void showToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToolStripItem menuItem = sender as ToolStripItem;
-            ContextMenuStrip toolStrip = menuItem.Owner as ContextMenuStrip;
-            Mini mini = toolStrip.SourceControl as Mini;
-            if(mini.PlayerMini == null)
-            {
-
-                mini.PlayerMini.Location = pbDmMap.PointToClient(new Point(toolStrip.Location.X - mini.Width / 2, toolStrip.Location.Y - mini.Height / 2));
-            }
-            else
-            {
-                mini.ShowMini();
-            }
-
-            //showToolStripMenuItem.Enabled = false;
-            //hideOnPlayerMapToolStripMenuItem.Enabled = true;
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -556,17 +541,17 @@ namespace Dungee
                 if (mouseOverControl.GetType() == typeof(Mini))
                 {
                     Mini activeMini = (Mini)mouseOverControl;
-                    if (activeMini.imgSize >= 25 && activeMini.imgSize < 100)
+                    if (activeMini.imgSize >= 25 && activeMini.imgSize <= 200)
                     {
                         activeMini.imgSize += 5;
                     }
-                    else if (activeMini.imgSize < 25)
+                    else if (activeMini.imgSize <= 25)
                     {
                         activeMini.imgSize = 25;
                     }
-                    else if (activeMini.imgSize > 100)
+                    else if (activeMini.imgSize >= 200)
                     {
-                        activeMini.imgSize = 100;
+                        activeMini.imgSize = 200;
                     }
                     activeMini.Size = new Size(activeMini.imgSize, activeMini.imgSize);
                     activeMini.PlayerMini.Size = activeMini.Size;
@@ -576,15 +561,15 @@ namespace Dungee
                 }
                 else
                 {
-                    if (penRadius >= 10 && penRadius < 500)
+                    if (penRadius >= 10 && penRadius <= 500)
                     {
                         penRadius += 10;
                     }
-                    else if (penRadius < 10)
+                    else if (penRadius <= 10)
                     {
                         penRadius = 10;
                     }
-                    else if (penRadius > 500)
+                    else if (penRadius >= 500)
                     {
                         penRadius = 500;
                     }
@@ -596,17 +581,17 @@ namespace Dungee
                 if (mouseOverControl.GetType() == typeof(Mini))
                 {
                     Mini activeMini = (Mini)mouseOverControl;
-                    if (activeMini.imgSize > 25 && activeMini.imgSize <= 100)
+                    if (activeMini.imgSize >= 25 && activeMini.imgSize <= 200)
                     {
                         activeMini.imgSize -= 5;
                     }
-                    else if (activeMini.imgSize < 25)
+                    else if (activeMini.imgSize <= 25)
                     {
                         activeMini.imgSize = 25;
                     }
-                    else if (activeMini.imgSize > 100)
+                    else if (activeMini.imgSize >= 200)
                     {
-                        activeMini.imgSize = 100;
+                        activeMini.imgSize = 200;
                     }
                     activeMini.Size = new Size(activeMini.imgSize, activeMini.imgSize);
                     activeMini.PlayerMini.Size = activeMini.Size;
@@ -615,7 +600,7 @@ namespace Dungee
                     activeMini.Update();
                 } else
                 {
-                    if (penRadius >= 10 && penRadius < 500)
+                    if (penRadius >= 10 && penRadius <= 500)
                     {
                         penRadius -= 10;
                     }
@@ -623,13 +608,14 @@ namespace Dungee
                     {
                         penRadius = 10;
                     }
-                    else if (penRadius > 500)
+                    else if (penRadius >= 500)
                     {
                         penRadius = 500;
                     }
                     pbDmMap.Invalidate();
                     pbDmMap.Update();
                 }
+
             } 
             else if (e.KeyCode == Keys.X)
             {
@@ -645,10 +631,12 @@ namespace Dungee
             }
             else if (e.KeyCode == Keys.A)
             {
-                //Area newArea = new Area();
-                //newArea.Image
+                cursorType = CursorType.AOE;
+                pbDmMap.Invalidate();
+                pbDmMap.Update();
+                pMap.pbPlayerMap.Invalidate();
+                pMap.pbPlayerMap.Update();
             }
-;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -668,9 +656,14 @@ namespace Dungee
 
         private void Dungee_KeyUp(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Z)
+            switch (e.KeyCode)
             {
-                fill = false;
+                case Keys.Z:
+                    fill = false;
+                    break;
+                case Keys.A:
+                    cursorType = CursorType.Draw;
+                    break;
             }
         }
 

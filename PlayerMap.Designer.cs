@@ -42,6 +42,7 @@
             this.pbPlayerMap.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pbPlayerMap.TabIndex = 0;
             this.pbPlayerMap.TabStop = false;
+            this.pbPlayerMap.Paint += new System.Windows.Forms.PaintEventHandler(this.pbPlayerMap_Paint);
             // 
             // PlayerMap
             // 

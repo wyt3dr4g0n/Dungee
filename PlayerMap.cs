@@ -12,9 +12,24 @@ namespace Dungee
 {
     public partial class PlayerMap : Form
     {
-        public PlayerMap()
+        Dungee main;
+        public PlayerMap(Dungee dungee)
         {
             InitializeComponent();
+            main = dungee;
+        }
+
+        public void pbPlayerMap_Paint(object sender, PaintEventArgs e)
+        {
+            switch (main.cursorType)
+            {
+                case Dungee.CursorType.AOE:
+                    Point local = pbPlayerMap.PointToClient(Cursor.Position);
+                    e.Graphics.FillEllipse(new SolidBrush(Color.FromArgb(100, Color.Red)), local.X - main.penRadius / 2,
+                        local.Y - main.penRadius / 2,
+                        main.penRadius, main.penRadius);
+                    break;
+            }
         }
     }
 }

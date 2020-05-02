@@ -138,6 +138,8 @@ Size Brush = Ctrl + Scrollwheel
 
 Size Mini = Hover Mini &amp; Ctrl + Scrollwheel 
 		    OR
-	    Hover Mini &amp; Ctrl + Up/Down Arrow</value>
+	    Hover Mini &amp; Ctrl + Up/Down Arrow
+
+Show Area of Effect = Size Brush + Hold A</value>
   </data>
 </root>

@@ -40,6 +40,7 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnHelp = new System.Windows.Forms.Button();
+            this.lblCursorSize = new System.Windows.Forms.Label();
             this.DMGroup.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbDmMap)).BeginInit();
@@ -220,12 +221,22 @@
             this.btnHelp.UseVisualStyleBackColor = true;
             this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
             // 
+            // lblCursorSize
+            // 
+            this.lblCursorSize.AutoSize = true;
+            this.lblCursorSize.ForeColor = System.Drawing.Color.White;
+            this.lblCursorSize.Location = new System.Drawing.Point(5, 233);
+            this.lblCursorSize.Name = "lblCursorSize";
+            this.lblCursorSize.Size = new System.Drawing.Size(0, 13);
+            this.lblCursorSize.TabIndex = 4;
+            // 
             // Dungee
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(783, 457);
+            this.Controls.Add(this.lblCursorSize);
             this.Controls.Add(this.btnHelp);
             this.Controls.Add(this.lblZoom);
             this.Controls.Add(this.zoomScroll);
@@ -262,6 +273,7 @@
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Button btnHelp;
+        private System.Windows.Forms.Label lblCursorSize;
     }
 }
 
